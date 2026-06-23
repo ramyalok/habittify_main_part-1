@@ -1,0 +1,51 @@
+npm install express mongoose dotenv bcryptjs jsonwebtoken cors helmet express-async-handler express-validator
+npm i -D nodemon
+
+
+http://localhost:4000/habit/create
+
+{
+  "habitName":"sleep",
+  "emoji":"😎"
+}
+
+
+Flow:
+
+Login
+↓
+Backend creates token
+↓
+Frontend stores token
+↓
+User clicks Logout
+↓
+Frontend removes token
+↓
+Redux clears currentUser
+↓
+Navigate("/")
+
+Example Navbar:
+
+const handleLogout = () => {
+
+localStorage.removeItem("token");
+
+dispatch(logout());
+
+navigate("/");
+
+};
+
+Your Redux reducer:
+
+logout:(state)=>{
+
+state.currentUser=null;
+
+state.isAuthenticated=false;
+
+}
+
+This is enough
