@@ -1,5 +1,5 @@
 const HabitModel = require ("../model1/Addhabit");
-
+const HabitifyUsers = require("../model1/users");
 exports.addHabit =  async(req,res)=>{
 
     try{
@@ -67,13 +67,13 @@ if(!updatedHabit)
 
     }
     catch(error){
-     res.status(500).json({ message: err.message });
+     res.status(500).json({ message: error.message });
     }
 }
 
 exports.deleteHabit = async(req,res)=>{
     try{
-        const deletedHabit= await HabitModel.findByIdAndDelete({
+        const deletedHabit= await HabitModel.findOneAndDelete({
         _id:req.params.id,
         createdBy:req.user.id
         })
@@ -89,7 +89,210 @@ exports.deleteHabit = async(req,res)=>{
     }
 }
 
+exports.toggleHabit = async (req, res) => {
+  try {
+    const habit = await HabitModel.findById(req.params.id);
 
+    if (!habit) {
+      return res.status(404).json({
+        message: "Habit not found",
+      });
+    }
+
+    habit.completed = !habit.completed;
+
+    await habit.save();
+
+    res.status(200).json({
+      success: true,
+      habit,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};;
+
+exports.generateHabits = async (req, res) => {
+  try {
+    const user = await HabitifyUsers.findById(req.user.id);
+
+    let suggestions = [];
+
+    switch (user.goal) {
+      case "Weight_loss":
+        suggestions = [
+          {
+            habitName: "Walk 10000 Steps",
+            emoji: "🚶",
+            reason: "Burn calories daily",
+          },
+          {
+            habitName: "Drink 3L Water",
+            emoji: "💧",
+            reason: "Stay hydrated",
+          },
+          {
+            habitName: "Exercise 30 Minutes",
+            emoji: "🏋️",
+            reason: "Improve fitness",
+          },
+          {
+            habitName: "Avoid Sugary Drinks",
+            emoji: "🏋️",
+            reason: "Balanced diet",
+          },
+        ];
+        break;
+      case "Weight_gain":
+        suggestions = [
+          {
+            habitName: "Protein Rich Breakfast",
+            emoji: "🍳",
+            reason: "Build muscle",
+          },
+          {
+            habitName: "Strength Training",
+            emoji: "🏋️",
+            reason: "Increase muscle mass",
+          },
+          {
+            habitName: "Eat Every 3 Hours",
+            emoji: "🍽️",
+            reason: "Increase calorie intake",
+          },
+        ];
+        break;
+
+      case "Fitness":
+        suggestions = [
+          {
+            habitName: "Morning Workout",
+            emoji: "🏃",
+            reason: "Stay active",
+          },
+          {
+            habitName: "Stretching",
+            emoji: "🤸",
+            reason: "Improve flexibility",
+          },
+          {
+            habitName: "Drink Water",
+            emoji: "💧",
+            reason: "Support recovery",
+          },
+        ];
+        break;
+      case "Study":
+        suggestions = [
+          {
+            habitName: "Read 20 Pages",
+            emoji: "📚",
+            reason: "Increase knowledge",
+          },
+          {
+            habitName: "Plan Daily Tasks",
+            emoji: "📝",
+            reason: "Stay organized",
+          },
+          {
+            habitName: "Practice Coding",
+            emoji: "💻",
+            reason: "Improve skills",
+          },
+        ];
+        break;
+      case "Productivity":
+        suggestions = [
+          {
+            habitName: "Read 20 Pages",
+            emoji: "📚",
+            reason: "Increase knowledge",
+          },
+          {
+            habitName: "Plan Daily Tasks",
+            emoji: "📝",
+            reason: "Stay organized",
+          },
+          {
+            habitName: "Practice Coding",
+            emoji: "💻",
+            reason: "Improve skills",
+          },
+        ];
+        break;
+
+      case "Mental Health":
+        suggestions = [
+          {
+            habitName: "Meditation",
+            emoji: "🧘",
+            reason: "Reduce stress",
+          },
+          {
+            habitName: "Journal Writing",
+            emoji: "📔",
+            reason: "Track emotions",
+          },
+          {
+            habitName: "Evening Walk",
+            emoji: "🌇",
+            reason: "Relax mind",
+          },
+        ];
+        break;
+      default:
+        suggestions = [
+          {
+            habitName: "Drink Water",
+            emoji: "💧",
+            reason: "Healthy daily habit",
+          },
+          {
+            habitName: "Read Book",
+            emoji: "📚",
+            reason: "Learn something new",
+          },
+        ];
+    }
+
+    res.status(200).json({
+      suggestions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { age, gender, height, weight, dailyActivity, goal, reminderTime } =
+      req.body;
+
+    const user = await HabitifyUsers.findByIdAndUpdate(
+      req.user.id,
+      {
+        age,
+        gender,
+        height,
+        weight,
+        dailyActivity,
+        goal,
+        reminderTime,
+      },
+      { new: true },
+    );
+
+    res.status(200).json({success:true,message:"User updated successfully",data:user});
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 // Admin → sees own habits only
 // User → sees own habits only

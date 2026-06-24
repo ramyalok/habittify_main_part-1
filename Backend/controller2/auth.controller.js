@@ -1,7 +1,7 @@
 const HabitifyUsers = require("../model1/users");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../utils1/generateToken");
-const sendMail = require("../utils1/sendMail");
+// const sendMail = require("../utils1/sendMail");
 
 exports.register = async (req, res) => {
   try {
@@ -89,21 +89,43 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-//in gmail.box
-exports.sendOtp = async (req, res) => {
-  const { email } = req.body;
-  const user = await HabitifyUsers.findOne({ email });
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  user.otp = otp;
-  user.otpExpire = Date.now() + 5 * 60 * 1000;
-  user.otpVerified = false;
-  await user.save();
-  await sendMail(email, otp);
-  res.status(200).json({
-    success: true,
-    message: "OTP sent to email",
-  });
-};
+exports.sendOtp = async(req,res)=>{
+try{
+  const{email}=req.body;
+  const user = await HabitifyUsers.findOne({email});
+  if(!user)
+    {
+    return res.status(404).json({message:"User Not Found"});
+    }
+
+    const generateOtp = Math.floor(100000+Math.random()*900000).toString();
+    user.otp = generateOtp;
+
+    user.otpExpire = Date.now()+ 5*60*1000;
+    await user.save();
+    res.status(200).json({success:true,message:"OTP is generated",otp:generateOtp})//send to front end
+}
+catch(error)
+{
+res.status(500).json({message:error.message})
+}
+}
+
+// //in gmail.box
+// exports.sendOtp = async (req, res) => {
+//   const { email } = req.body;
+//   const user = await HabitifyUsers.findOne({ email });
+//   const otp = Math.floor(100000 + Math.random() * 900000).toString();
+//   user.otp = otp;
+//   user.otpExpire = Date.now() + 5 * 60 * 1000;
+//   user.otpVerified = false;
+//   await user.save();
+//   await sendMail(email, otp);
+//   res.status(200).json({
+//     success: true,
+//     message: "OTP sent to email",
+//   });
+// };
 
 exports.verifyOtp = async (req, res) => {
   try {
