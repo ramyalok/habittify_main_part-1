@@ -6,7 +6,7 @@ const habitcontroller = require("../controller2/habitCrud.controller");
 const auth = require("../middleware4/auth.middleware");
 const role = require ("../middleware4/role.middleware");
 
-router.post("/create",auth,role,habitcontroller.addHabit);
+router.post("/create",auth,habitcontroller.addHabit);
 
 router.get("/get",auth,habitcontroller.getHabit);
 
@@ -18,7 +18,9 @@ router.patch("/:id/toggle", auth, habitcontroller.toggleHabit);
 
 router.get("/suggestions", auth, habitcontroller.generateHabits);
 
-router.put("/profile", auth, habitcontroller.updateProfile);
+router.get("/getprofile",auth,habitcontroller.getProfile)
+router.put("/updateprofile", auth, habitcontroller.updateProfile);
+router.delete("/deleteprofile",auth,habitcontroller.deleteProfile)
 
 
 module.exports = router;

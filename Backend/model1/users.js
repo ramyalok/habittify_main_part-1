@@ -44,17 +44,17 @@ const UserSchema = new mongoose.Schema(
       default: "",
     },
 
-    dailyActivity: {
-      type: String,
-      default: "",
-    },
+    // dailyActivity: {
+    //   type: String,
+    //   default: "",
+    // },
 
     reminderTime: {
       type: String,
       default: "",
     },
 
-    activityLevel: {
+    dailyactivitylevel: {
       type: String,
       enum: ["low", "medium", "high"],
       default: "medium",

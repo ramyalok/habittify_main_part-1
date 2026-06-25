@@ -1,0 +1,144 @@
+File Responsibilities
+AddHabit.jsx
+
+Responsible for:
+
+Profile Form
+Save Profile
+Generate Suggestions
+Add New Habit
+Display Habit Grid
+SuggestedHabitGrid.jsx
+
+Responsible for:
+
+Display Suggested Habits
+Pass addTodo function
+SuggestedHabitCard.jsx
+
+Responsible for:
+
+Display
+Emoji
+Habit Name
+Add Button
+HabitGrid.jsx
+
+Responsible for:
+
+Loop all habits
+Render HabitCard
+HabitCard.jsx
+
+Responsible for:
+
+Display Habit
+Edit Habit
+Delete Habit
+Toggle Habit
+UserProfile.jsx
+
+Responsible for:
+
+Display User Details
+
+Display User Habits
+
+Update Profile
+
+Delete Profile
+
+If you fix the 4 major issues:
+
+updateProfile route
+deleteProfile route
+SuggestedHabitCard onAdd
+HabitCard edit/delete backend calls
+
+then your entire Habitify workflow will start working exactly as you described:
+
+Save Profile
+   ↓
+Suggestions Generated
+   ↓
+Add Suggested Habit
+   ↓
+HabitCard Appears
+   ↓
+Add Custom Habit
+   ↓
+HabitCard Appears
+   ↓
+Edit Habit
+   ↓
+Delete Habit
+   ↓
+UserProfile shows everything
+   ↓
+Update Profile
+   ↓
+Delete Profile
+
+That's the architecture you're aiming for, and it's very c
+
+
+
+
+Register
+    ↓
+Login
+    ↓
+AddHabit Page
+
+Fill Profile
+(age,weight,height,goal...)
+    ↓
+Save Profile
+    ↓
+PUT /habit/updateprofile
+    ↓
+Generate Suggestions
+    ↓
+GET /habit/suggestions
+    ↓
+SuggestedHabitGrid
+
+Add Button
+    ↓
+POST /habit/create
+    ↓
+MongoDB
+    ↓
+HabitGrid
+
+Manual Habit Input
+    ↓
+POST /habit/create
+    ↓
+HabitGrid
+
+Edit Habit
+    ↓
+PUT /habit/update/:id
+
+Delete Habit
+    ↓
+DELETE /habit/delete/:id
+
+UserProfile Page
+    ↓
+GET /habit/getprofile
+
+Edit Profile
+    ↓
+Navigate AddHabit
+    ↓
+Update Profile
+    ↓
+PUT /habit/updateprofile
+
+Delete Profile
+    ↓
+DELETE /habit/deleteprofile
+    ↓
+Delete User + Habits

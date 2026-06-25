@@ -121,7 +121,7 @@ exports.generateHabits = async (req, res) => {
     let suggestions = [];
 
     switch (user.goal) {
-      case "Weight_loss":
+      case "weight_loss":
         suggestions = [
           {
             habitName: "Walk 10000 Steps",
@@ -145,7 +145,7 @@ exports.generateHabits = async (req, res) => {
           },
         ];
         break;
-      case "Weight_gain":
+      case "weight_gain":
         suggestions = [
           {
             habitName: "Protein Rich Breakfast",
@@ -165,7 +165,7 @@ exports.generateHabits = async (req, res) => {
         ];
         break;
 
-      case "Fitness":
+      case "fitness":
         suggestions = [
           {
             habitName: "Morning Workout",
@@ -184,7 +184,7 @@ exports.generateHabits = async (req, res) => {
           },
         ];
         break;
-      case "Study":
+      case "study":
         suggestions = [
           {
             habitName: "Read 20 Pages",
@@ -203,7 +203,7 @@ exports.generateHabits = async (req, res) => {
           },
         ];
         break;
-      case "Productivity":
+      case "productivity":
         suggestions = [
           {
             habitName: "Read 20 Pages",
@@ -223,7 +223,7 @@ exports.generateHabits = async (req, res) => {
         ];
         break;
 
-      case "Mental Health":
+      case "mental_health":
         suggestions = [
           {
             habitName: "Meditation",
@@ -267,9 +267,28 @@ exports.generateHabits = async (req, res) => {
   }
 };
 
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await HabitifyUsers.findById(req.user.id).select("-password");
+
+    const habits = await HabitModel.find({
+      createdBy: req.user.id,
+    });
+
+    res.status(200).json({
+      success: true,
+      user,
+      habits,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 exports.updateProfile = async (req, res) => {
   try {
-    const { age, gender, height, weight, dailyActivity, goal, reminderTime } =
+    const { age, gender, height, weight, dailyactivitylevel, goal, reminderTime } =
       req.body;
 
     const user = await HabitifyUsers.findByIdAndUpdate(
@@ -279,7 +298,7 @@ exports.updateProfile = async (req, res) => {
         gender,
         height,
         weight,
-        dailyActivity,
+        dailyactivitylevel,
         goal,
         reminderTime,
       },
@@ -287,6 +306,24 @@ exports.updateProfile = async (req, res) => {
     );
 
     res.status(200).json({success:true,message:"User updated successfully",data:user});
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+exports.deleteProfile = async (req, res) => {
+  try {
+    await HabitModel.deleteMany({
+      createdBy: req.user.id,
+    });
+
+    await HabitifyUsers.findByIdAndDelete(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Profile deleted successfully",
+    });
   } catch (error) {
     res.status(500).json({
       message: error.message,
