@@ -3,7 +3,7 @@ const HabitifyUsers = require("../model1/users");
 exports.addHabit =  async(req,res)=>{
 
     try{
-      const { habitName, emoji } = req.body;
+      const { habitName, emoji, isSuggested } = req.body;
       // check duplicate ONLY for current user or admin
       const IssameHabit = await HabitModel.findOne({ habitName,createdBy:req.user.id });
       if (IssameHabit) {
@@ -15,6 +15,7 @@ exports.addHabit =  async(req,res)=>{
       const newHabit = await HabitModel.create({
         habitName,
         emoji,
+        isSuggested,
         createdBy: req.user.id,
       });
       res
@@ -26,6 +27,7 @@ exports.addHabit =  async(req,res)=>{
         });
     }
     catch(err){
+      console.log(err);
     res.status(500).json({ message: err.message });
     }
 }
@@ -91,29 +93,61 @@ exports.deleteHabit = async(req,res)=>{
 
 exports.toggleHabit = async (req, res) => {
   try {
-    const habit = await HabitModel.findById(req.params.id);
+    const habit = await HabitModel.findOne({
+      _id: req.params.id,
+      createdBy: req.user.id,
+    });
 
     if (!habit) {
       return res.status(404).json({
+        success: false,
         message: "Habit not found",
       });
     }
 
-    habit.completed = !habit.completed;
+    const today = new Date().toISOString().split("T")[0];
+
+    if (!habit.history) {
+      habit.history = {};
+    }
+
+    // Toggle today's completion
+    habit.history[today] = !habit.history[today];
+
+    // Update completed field
+    habit.completed = habit.history[today];
+
+    // Calculate streak
+    let streak = 0;
+    let current = new Date();
+
+    while (true) {
+      const dateStr = current.toISOString().split("T")[0];
+
+      if (habit.history[dateStr]) {
+        streak++;
+        current.setDate(current.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    habit.streak = streak;
 
     await habit.save();
 
     res.status(200).json({
       success: true,
-      habit,
+      data: habit,
     });
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       message: error.message,
     });
   }
-};;
-
+};
 exports.generateHabits = async (req, res) => {
   try {
     const user = await HabitifyUsers.findById(req.user.id);
