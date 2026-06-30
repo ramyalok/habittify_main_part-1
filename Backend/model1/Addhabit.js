@@ -4,6 +4,7 @@ const HabitSchema = new mongoose.Schema(
     habitName: {
       type: String,
       required: true,
+      unique:true
     },
     emoji: {
       type: String,
@@ -27,6 +28,10 @@ const HabitSchema = new mongoose.Schema(
     isSuggested: {
       type: Boolean,
       default: false,
+    },
+    lastCompletedAt: {
+      type: Date,
+      default: null,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

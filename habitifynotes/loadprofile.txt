@@ -1,0 +1,497 @@
+Step 2: Backend Route
+
+Your backend route is
+
+router.get("/getprofile", auth, habitcontroller.getProfile);
+
+When React calls
+
+GET /habit/getprofile
+
+it goes here.
+
+Step 3: Controller
+
+Inside your controller, you probably have something similar to this:
+
+exports.getProfile = async (req, res) => {
+
+   const user = await HabitifyUsers.findById(req.user.id);
+
+   const habits = await HabitModel.find({
+      createdBy: req.user.id
+   });
+
+   res.json({
+      success: true,
+      user,
+      habits
+   });
+}
+
+Notice this line:
+
+res.json({
+   success: true,
+   user,
+   habits
+});
+
+The backend is sending an object called user.
+
+Step 4: Backend Response
+
+The backend returns something like this:
+
+{
+  "success": true,
+  "user": {
+    "username": "Ramya",
+    "email": "ram@gmail.com",
+    "age": 22,
+    "weight": 55,
+    "height": 160,
+    "goal": "fitness"
+  },
+  "habits": []
+}
+Step 5: React receives it
+
+When this finishes
+
+const res = await getProfile();
+
+res.data becomes
+
+res.data = {
+  success: true,
+  user: {
+    username: "Ramya",
+    email: "ram@gmail.com",
+    age: 22,
+    weight: 55,
+    height: 160,
+    goal: "fitness"
+  },
+  habits: []
+}
+
+So
+
+res.data.user
+
+means
+
+{
+  username: "Ramya",
+  email: "ram@gmail.com",
+  age: 22,
+  weight: 55,
+  height: 160,
+  goal: "fitness"
+}
+Step 6: That's why you can write
+res.data.user.age
+
+which means
+
+22
+
+and
+
+res.data.user.goal
+
+means
+
+"fitness"
+
+and
+
+res.data.user.username
+
+means
+
+"Ramya"
+Visual Flow
+React
+│
+│ getProfile()
+│
+▼
+
+GET /habit/getprofile
+
+│
+▼
+
+Backend Controller
+
+const user = HabitifyUsers.findById(...)
+
+│
+▼
+
+res.json({
+    user,
+    habits
+})
+
+│
+▼
+
+Frontend
+
+const res = await getProfile();
+
+│
+▼
+
+res.data.user///Step 1: User logs in
+
+Suppose Ramya logs in.
+
+Email:
+ram@gmail.com
+
+Password:
+******
+
+Backend checks the email and password.
+
+If correct:
+
+const token = jwt.sign(
+   { id: user._id },
+   process.env.JWT_SECRET
+);
+
+Assume Ramya's id is
+
+6a41d1424a61b845fe88cf4e
+
+JWT stores
+
+{
+   id: "6a41d1424a61b845fe88cf4e"
+}
+Step 2: Frontend stores token
+
+Your frontend does
+
+localStorage
+
+token = eyJhbGc.....
+Step 3: User opens Add Habit page
+
+React calls
+
+const res = await getProfile();
+
+which is
+
+API.get("/habit/getprofile");
+
+Before sending the request, Axios interceptor runs.
+
+Your code:
+
+API.interceptors.request.use((config) => {
+
+   const token =
+      localStorage.getItem("token");
+
+   config.headers.Authorization =
+      `Bearer ${token}`;
+
+   return config;
+});
+
+Now request becomes
+
+GET /habit/getprofile
+
+Authorization:
+Bearer eyJhbGc.....
+Step 4: Backend receives request
+
+Route
+
+router.get("/getprofile",
+auth,
+habitcontroller.getProfile);
+
+Before controller,
+
+it goes into
+
+auth middleware
+Step 5: Middleware
+
+This line
+
+const token =
+req.headers.authorization?.split(" ")[1];
+
+Suppose header is
+
+Bearer eyJhbGc.....
+
+After split
+
+["Bearer","eyJhbGc....."]
+
+Index
+
+[0]
+
+is
+
+Bearer
+
+Index
+
+[1]
+
+is
+
+eyJhbGc.....
+
+So
+
+token =
+"eyJhbGc....."
+Step 6: Verify JWT
+
+Your code
+
+const decoded =
+jwt.verify(
+token,
+process.env.JWT_SECRET
+);
+
+JWT opens the token.
+
+Inside it finds
+
+{
+id:
+6a41d1424a61b845fe88cf4e
+}
+
+So
+
+decoded
+
+becomes
+
+{
+   id:"6a41d1424a61b845fe88cf4e",
+   iat:....,
+   exp:....
+}
+Step 7: Find User
+
+Your code
+
+const user =
+await HabitifyUser.findById(decoded.id);
+
+Now MongoDB searches
+
+_id
+
+6a41d1424a61b845fe88cf4e
+
+It finds
+
+Ramya
+
+Complete document
+
+{
+username:"Ramya",
+email:"ram@gmail.com",
+age:22,
+goal:"fitness",
+...
+}
+Step 8: Store inside req.user
+
+Your middleware
+
+req.user = user;
+
+Now
+
+req.user
+
+contains
+
+{
+username:"Ramya",
+email:"ram@gmail.com",
+goal:"fitness",
+height:160,
+weight:55
+}
+
+This is the key step.
+
+Step 9: Controller starts
+
+Now this line executes
+
+exports.getProfile = async(req,res)=>{
+
+Inside controller
+
+you write
+
+req.user.id
+
+Because middleware already did
+
+req.user = user;
+
+So
+
+req.user.id
+
+is
+
+6a41d1424a61b845fe88cf4e
+Step 10: Controller
+
+Your code
+
+const user =
+await HabitifyUsers.findById(req.user.id);
+
+Again it loads Ramya.
+
+Then
+
+const habits =
+await HabitModel.find({
+createdBy:req.user.id
+});
+
+Now only Ramya's habits come.
+
+Example
+
+Coding
+
+Reading
+
+Exercise
+Step 11: Backend returns
+
+Your controller
+
+res.status(200).json({
+
+success:true,
+
+user,
+
+habits
+
+});
+
+This is JavaScript shorthand.
+
+It is exactly equal to
+
+res.status(200).json({
+
+success:true,
+
+user:user,
+
+habits:habits
+
+});
+
+So backend sends
+
+{
+   "success":true,
+
+   "user":{
+      "username":"Ramya",
+      "age":22,
+      "goal":"fitness"
+   },
+
+   "habits":[
+      ...
+   ]
+}
+Step 12: Frontend receives
+const res =
+await getProfile();
+
+Now
+
+res.data
+
+is
+
+{
+success:true,
+
+user:{
+username:"Ramya",
+goal:"fitness"
+},
+
+habits:[]
+}
+
+Therefore
+
+res.data.user
+
+means
+
+{
+username:"Ramya",
+goal:"fitness"
+}
+
+So
+
+res.data.user.username
+
+=
+
+Ramya
+
+and
+
+res.data.user.goal
+
+=
+
+fitness
+This answers your earlier question
+
+You asked:
+
+"Where did user come from?"
+
+It comes from your own controller:
+
+const user = await HabitifyUsers.findById(req.user.id);
+
+Then you return it:
+
+res.status(200).json({
+   success: true,
+   user,
+   habits,
+});
+
+So React receives res.data.user.
