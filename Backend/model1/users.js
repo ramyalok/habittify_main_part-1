@@ -21,35 +21,28 @@ const UserSchema = new mongoose.Schema(
     role: {
       type: String,
       default: "user",
+    }, // Profile Information
+    profileImage: {
+      type: String,
+      default: "",
     },
-
-    // Profile Information
     age: {
       type: Number,
       default: null,
     },
-
     height: {
       type: Number,
       default: null,
     },
-
     weight: {
       type: Number,
       default: null,
     },
-
     gender: {
       type: String,
       default: "",
     },
-
-    // dailyActivity: {
-    //   type: String,
-    //   default: "",
-    // },
-
-    reminderTime: {
+      reminderTime: {
       type: String,
       default: "",
     },
@@ -57,7 +50,7 @@ const UserSchema = new mongoose.Schema(
     dailyactivitylevel: {
       type: String,
       enum: ["low", "medium", "high"],
-      default: "medium",
+      default: "",
     },
 
     goal: {
@@ -70,7 +63,7 @@ const UserSchema = new mongoose.Schema(
         "productivity",
         "mental_health",
       ],
-      default: "fitness",
+      default: "",
     },
 
     otp: {

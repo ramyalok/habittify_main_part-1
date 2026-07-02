@@ -20,7 +20,7 @@ module.exports = async (req, res, next) => {
       });
     }
     console.log(decoded); //iam decoded id  { id: '6a2c47cb2be72542423f4144', iat: 1781351678, exp: 1781956478 }
-    req.user = user;
+    req.user = user;//your controller can directly access--req.user.id-req.user.username-req.user.email-req.user.role-req.user.goal-req.user.weight
 
     next();
   } catch (error) {

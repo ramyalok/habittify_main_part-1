@@ -164,12 +164,42 @@ exports.toggleHabit = async (req, res) => {
 exports.generateHabits = async (req, res) => {
   try {
     const user = await HabitifyUsers.findById(req.user.id);
+    console.log("USER FROM DB");
+    console.log(user);
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
-    } // -----------------------------// Calculate BMI// -----------------------------
+    } //for generate habits we need to complte userprofile with goal and bmi category. if not complete then we will not generate habits.
+   
+   console.log("CHECK PROFILE");
+
+   console.log({
+     age: user.age,
+     height: user.height,
+     weight: user.weight,
+     goal: user.goal,
+     dailyactivitylevel: user.dailyactivitylevel,
+   });
+      
+    if (
+      !user.age ||
+      !user.height ||
+      !user.weight ||
+      !user.goal ||
+      !user.dailyactivitylevel
+    ) {
+      return res.status(200).json({
+        success: true,
+        profileCompleted: false,
+        suggestions: [],
+        bmi: null,
+        bmiCategory: "",
+        message: "Complete your profile first",
+      });
+    }
+        // -----------------------------// Calculate BMI// -----------------------------
     let bmi = null;
     if (user.height && user.weight) {
       const heightInMeters = user.height / 100;
@@ -388,6 +418,7 @@ exports.generateHabits = async (req, res) => {
       bmiCategory,
       goal: user.goal,
       suggestions,
+      profileCompleted: true,
     });
   } catch (error) {
     res.status(500).json({
@@ -535,7 +566,15 @@ exports.deleteProfile = async (req, res) => {
     });
   }
 };
+exports.uploadProfileImage = async (req, res) => {
+  const user = await HabitifyUsers.findById(req.user.id);
 
+  user.profileImage = "/uploads/profile/" + req.file.filename;//insted of req in body we are using req.file.filename because we are using multer to upload image and multer will give us the filename of the uploaded image in req.file.filename
+
+  await user.save();
+
+  res.json(user);
+};
 // Admin → sees own habits only
 // User → sees own habits only
 // Duplicate allowed across users
