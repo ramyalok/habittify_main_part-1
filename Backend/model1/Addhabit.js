@@ -4,7 +4,7 @@ const HabitSchema = new mongoose.Schema(
     habitName: {
       type: String,
       required: true,
-      unique:true
+       
     },
     emoji: {
       type: String,
@@ -43,8 +43,32 @@ const HabitSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model("Habits",HabitSchema);
+// ✅ Add the index AFTER the schema
+HabitSchema.index(//This means MongoDB checks both fields together: createdBy + habitName
+  {
+    createdBy: 1,
+    habitName: 1,
+  },
+  {
+    unique: true,
+  }
+);
 
+module.exports = mongoose.model("Habits",HabitSchema);
+// Why did you use a Compound Index?because your project requirement was:A user should not create the same habit twice.Different users can create the same habit.
+// Example:
+// Ramya Drink Water   ✅
+// Ramya Drink Water   ❌
+// Kumar Drink Water   ✅
+// Interview Answer (30 seconds)
+
+// A compound index is an index created on two or more fields. MongoDB checks the combination of those fields instead of a single field. In my Habitify project, I used a compound unique index on createdBy and habitName. This allows different users to create the same habit, but prevents the same user from creating duplicate habits. It also improves query performance when searching using both fields.
+
+// If the interviewer asks, "Why not use unique: true on habitName?"
+
+// You can answer:
+
+// If I use unique: true on habitName, then no user in the entire application can create the same habit. For example, if one user creates "Drink Water", every other user would get a duplicate key error. That's not the requirement. Using a compound unique index on createdBy and habitName ensures uniqueness only for each individual user.
  
 // MongoDB automatically stores:
 

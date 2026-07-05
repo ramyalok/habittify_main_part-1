@@ -1,0 +1,480 @@
+🤩step 1 register:post
+http://localhost:4000/users/register
+ {
+    "username":"Kumar",
+    "email":"k@gmail.com",
+    "password":"K@123" 
+}
+{
+  "message": "User registerd sucessfully",
+  "success": true,
+  "data": {
+    "id": "6a4870256b86137b902c2bc4",
+    "username": "Kumar",
+    "email": "k@gmail.com",
+    "role": "user"
+  }
+}
+
+🤩step:2 login post after login frontend stores token localstorage
+http://localhost:4000/users/login
+ {
+     "email":"k@gmail.com",
+    "password":"K@123"
+}
+{
+  "message": "Login Sucessfully",
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNDg3MDI1NmI4NjEzN2I5MDJjMmJjNCIsImlhdCI6MTc4MzEzMjI0MiwiZXhwIjoxNzgzNzM3MDQyfQ.jcf4G_q-BBj6ZFfgl1EIACyOWL7eRS1z3cghPTI3cig",
+  "data": {
+    "id": "6a4870256b86137b902c2bc4",
+    "username": "Kumar",
+    "email": "k@gmail.com",
+    "role": "user"
+  }
+}
+step3 forgotpassword 
+step4: UPDATE PROFILE(add user details) auth add bearer token
+put http://localhost:4000/habit/updateprofile   update only the logged user(auth)
+{
+ "age":22,
+ "height":165,
+ "weight":60,
+ "gender":" male",
+ "dailyactivitylevel":"medium",
+ "goal":"fitness",
+ "reminderTime":"08:00"
+}
+{
+  "success": true,
+  "message": "User updated successfully",
+  "data": {
+    "_id": "6a4870256b86137b902c2bc4",
+    "username": "Kumar",
+    "email": "k@gmail.com",
+    "password": "$2b$10$3bJ.6uyb8fXA6LdM0uExIOXIt2EO60qT.TkeJBbQUDlUZns2takcK",
+    "role": "user",
+    "profileImage": "",
+    "age": 22,
+    "height": 165,
+    "weight": 60,
+    "gender": " male",
+    "reminderTime": "08:00",
+    "otp": null,
+    "otpExpire": null,
+    "otpVerified": false,
+    "createdAt": "2026-07-04T02:29:57.256Z",
+    "updatedAt": "2026-07-04T02:47:27.623Z",
+    "__v": 0,
+    "dailyactivitylevel": "medium",
+    "goal": "fitness"
+  }
+}
+
+step5: GET PROFILE  return profile empty habits after that only read height,weight,goal=> genrate habits
+get http://localhost:4000/habit/getprofile (auth add bearer token same in update)
+{
+  "success": true,
+  "user": {
+    "_id": "6a4870256b86137b902c2bc4",
+    "username": "Kumar",
+    "email": "k@gmail.com",
+    "role": "user",
+    "profileImage": "",
+    "age": 22,
+    "height": 165,
+    "weight": 60,
+    "gender": " male",
+    "reminderTime": "08:00",
+    "otp": null,
+    "otpExpire": null,
+    "otpVerified": false,
+    "createdAt": "2026-07-04T02:29:57.256Z",
+    "updatedAt": "2026-07-04T02:47:27.623Z",
+    "__v": 0,
+    "dailyactivitylevel": "medium",
+    "goal": "fitness"
+  },
+  "habits": [],
+  "bmi": 22,
+  "bmiCategory": "Normal"
+}
+
+step:6 GENERATE HABITS (auth same token of particular user) based on goal and bmi
+get http://localhost:4000/habit/suggestions
+
+{
+  "success": true,
+  "bmi": 22,
+  "bmiCategory": "Normal",
+  "goal": "fitness",
+  "suggestions": [
+    {
+      "habitName": "Morning Workout",
+      "emoji": "🏃",
+      "reason": "Stay active"
+    },
+    {
+      "habitName": "Stretching",
+      "emoji": "🤸",
+      "reason": "Improve flexibility"
+    },
+    {
+      "habitName": "Drink Water",
+      "emoji": "💧",
+      "reason": "Support recovery"
+    },
+    {
+      "habitName": "Sleep 8 Hours",
+      "emoji": "😴",
+      "reason": "Better recovery"
+    },
+    {
+      "habitName": "Maintain Balanced Diet",
+      "emoji": "🥗",
+      "reason": "Keep healthy BMI"
+    }
+  ],
+  "profileCompleted": true
+}
+
+step 7:custom habits created by user
+post http://localhost:4000/habit/create
+{
+"habitName":"Have Healthy breafast at 9 am",
+"emoji":"💪"
+}
+{
+  "success": true,
+  "message": "Habits added successfully",
+  "data": {
+    "habitName": "Have Healthy breafast at 9 am",
+    "emoji": "💪",
+    "completed": false,
+    "streak": 0,
+    "isSuggested": false,
+    "lastCompletedAt": null,
+    "createdBy": "6a4870256b86137b902c2bc4",
+    "_id": "6a48a6780953903d9eda19b8",
+    "createdAt": "2026-07-04T06:21:44.482Z",
+    "updatedAt": "2026-07-04T06:21:44.482Z",
+    "__v": 0
+  }
+}
+
+step 8:GET HABITS  //first create habits and get all habits of owned user
+get http://localhost:4000/habit/get  body{"habitname":"cheh","emoji":"✏️"}:
+{
+  "success": true,
+  "message": "All Habits ",
+  "data": [
+    {
+      "_id": "6a48a6780953903d9eda19b8",
+      "habitName": "Have Healthy breafast at 9 am",
+      "emoji": "💪",
+      "completed": false,
+      "streak": 0,
+      "isSuggested": false,
+      "lastCompletedAt": null,
+      "createdBy": "6a4870256b86137b902c2bc4",
+      "createdAt": "2026-07-04T06:21:44.482Z",
+      "updatedAt": "2026-07-04T06:21:44.482Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a490dc16649781dff56e9ba",
+      "habitName": "check ur  sleep cycle",
+      "emoji": "😴",
+      "completed": false,
+      "streak": 0,
+      "isSuggested": false,
+      "lastCompletedAt": null,
+      "createdBy": "6a4870256b86137b902c2bc4",
+      "createdAt": "2026-07-04T13:42:25.919Z",
+      "updatedAt": "2026-07-04T13:42:25.919Z",
+      "__v": 0
+    }
+  ]
+}
+
+step:9 UPDATE HABIT 
+put http://localhost:4000/habit/update/6a48a6780953903d9eda19b8
+{
+"habitName":"Have Healthy breafast at 8 am",
+"emoji":"🍌🍽️"
+}
+{
+  "success": true,
+  "message": "Habit Updated successfully",
+  "data": {
+    "_id": "6a48a6780953903d9eda19b8",
+    "habitName": "Have Healthy breafast at 8 am",
+    "emoji": "🍌🍽️",
+    "completed": false,
+    "streak": 0,
+    "isSuggested": false,
+    "lastCompletedAt": null,
+    "createdBy": "6a4870256b86137b902c2bc4",
+    "createdAt": "2026-07-04T06:21:44.482Z",
+    "updatedAt": "2026-07-04T13:48:24.024Z",
+    "__v": 0
+  }
+}
+
+step:10 DELETE HABIT
+delete http://localhost:4000/habit/delete/6a48a6780953903d9eda19b8
+{
+  "success": true,
+  "message": "Habit deleted successfully",
+  "data": {
+    "_id": "6a48a6780953903d9eda19b8",
+    "habitName": "Have Healthy breafast at 8 am",
+    "emoji": "🍌🍽️",
+    "completed": false,
+    "streak": 0,
+    "isSuggested": false,
+    "lastCompletedAt": null,
+    "createdBy": "6a4870256b86137b902c2bc4",
+    "createdAt": "2026-07-04T06:21:44.482Z",
+    "updatedAt": "2026-07-04T13:48:24.024Z",
+    "__v": 0
+  }
+}
+
+step:11 patch toggle habit
+patch http://localhost:4000/habit/6a490dc16649781dff56e9ba/toggle
+{
+  "success": true,
+  "data": {
+    "_id": "6a490dc16649781dff56e9ba",
+    "habitName": "check ur  sleep cycle",
+    "emoji": "😴",
+    "completed": true,
+    "streak": 1,
+    "isSuggested": false,
+    "lastCompletedAt": "2026-07-04T15:30:59.766Z",
+    "createdBy": "6a4870256b86137b902c2bc4",
+    "createdAt": "2026-07-04T13:42:25.919Z",
+    "updatedAt": "2026-07-04T15:30:59.770Z",
+    "__v": 0,
+    "history": {
+      "2026-07-04": true
+    }
+  }
+}
+
+step:12 delete profile 
+delete http://localhost:4000/habit/deleteprofile
+
+//admin routes
+Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNDRiYTQ3YzE1NGM0MDkyNzVmNWY3MCIsImlhdCI6MTc4MzE4NzUyNywiZXhwIjoxNzgzNzkyMzI3fQ.RwkfUpmXB1FWi-z9UMOE9uia3Y195BNa0oazU3_ATkE
+{
+  "message": "Login Sucessfully",
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNDRiYTQ3YzE1NGM0MDkyNzVmNWY3MCIsImlhdCI6MTc4MzE4NzUyNywiZXhwIjoxNzgzNzkyMzI3fQ.RwkfUpmXB1FWi-z9UMOE9uia3Y195BNa0oazU3_ATkE",
+  "data": {
+    "id": "6a44ba47c154c409275f5f70",
+    "username": "RamyaKannan RK",
+    "email": "rk@gmail.com",
+    "role": "admin"
+  }
+}
+
+step 1:get allusers auth admin token
+get http://localhost:4000/admin/allusers
+[
+  {
+    "profileImage": "",
+    "reminderTime": "",
+    "_id": "6a3a6a0bae35675764d1d045",
+    "username": "Dharshini",
+    "email": "dharshu@gmail.com",
+    "role": "user",
+    "otp": null,
+    "otpExpire": null,
+    "otpVerified": false,
+    "createdAt": "2026-06-23T11:12:11.760Z",
+    "updatedAt": "2026-07-03T17:30:26.601Z",
+    "__v": 0,
+    "age": 9,
+    "dailyactivitylevel": "medium",
+    "gender": "Female",
+    "goal": "fitness",
+    "height": 120,
+    "weight": 28
+  },
+  {
+    "profileImage": "",
+    "_id": "6a3d691fab21f789d04626fc",
+    "username": "Ramya",
+    "email": "ramya@gmail.com",
+    "role": "user",
+    "age": 22,
+    "height": 144,
+    "weight": 44,
+    "gender": "Female",
+    "reminderTime": "",
+    "dailyactivitylevel": "medium",
+    "goal": "weight_loss",
+    "otp": null,
+    "otpExpire": null,
+    "otpVerified": false,
+    "createdAt": "2026-06-25T17:45:03.662Z",
+    "updatedAt": "2026-06-25T17:46:38.673Z",
+    "__v": 0
+  },
+  {
+    "profileImage": "",
+    "_id": "6a422546b56f72e5baa8bce9",
+    "username": "MeenaL",
+    "email": "meena@gmail.com",
+    "role": "user",
+    "age": 44,
+    "height": 155,
+    "weight": 77,
+    "gender": "Female",
+    "reminderTime": "",
+    "dailyactivitylevel": "low",
+    "goal": "mental_health",
+    "otp": null,
+    "otpExpire": null,
+    "otpVerified": false,
+    "createdAt": "2026-06-29T07:56:54.378Z",
+    "updatedAt": "2026-07-02T07:56:33.424Z",
+    "__v": 0
+  },
+  {
+    "profileImage": "",
+    "_id": "6a44ba47c154c409275f5f70",
+    "username": "RamyaKannan RK",
+    "email": "rk@gmail.com",
+    "role": "admin",
+    "age": 29,
+    "height": 154,
+    "weight": 68,
+    "gender": "Female",
+    "reminderTime": "",
+    "dailyactivitylevel": "medium",
+    "goal": "productivity",
+    "otp": null,
+    "otpExpire": null,
+    "otpVerified": false,
+    "createdAt": "2026-07-01T06:57:11.841Z",
+    "updatedAt": "2026-07-03T18:00:01.429Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a4870256b86137b902c2bc4",
+    "username": "Kumar",
+    "email": "k@gmail.com",
+    "role": "user",
+    "profileImage": "",
+    "age": 22,
+    "height": 165,
+    "weight": 60,
+    "gender": " male",
+    "reminderTime": "08:00",
+    "otp": null,
+    "otpExpire": null,
+    "otpVerified": false,
+    "createdAt": "2026-07-04T02:29:57.256Z",
+    "updatedAt": "2026-07-04T02:47:27.623Z",
+    "__v": 0,
+    "dailyactivitylevel": "medium",
+    "goal": "fitness"
+  }
+]
+
+step:2:get all habits auth admin token
+get http://localhost:4000/admin/allhabits
+[
+  {
+    "_id": "6a4242197458f031b942e499",
+    "habitName": "friends time",
+    "emoji": "✨",
+    "completed": true,
+    "streak": 1,
+    "isSuggested": false,
+    "createdBy": {
+      "_id": "6a3a6a0bae35675764d1d045",
+      "username": "Dharshini",
+      "email": "dharshu@gmail.com"
+    },
+    "createdAt": "2026-06-29T09:59:53.320Z",
+    "updatedAt": "2026-07-03T17:26:29.188Z",
+    "__v": 0,
+    "history": {
+      "2026-06-29": true,
+      "2026-06-30": true,
+      "2026-07-01": true,
+      "2026-07-03": true
+    },
+    "lastCompletedAt": "2026-07-03T17:26:29.181Z"
+  },
+  {
+    "_id": "6a42421c7458f031b942e49a",
+    "habitName": "Sleep 8 Hours",
+    "emoji": "😴",
+    "completed": true,
+    "streak": 1,
+    "isSuggested": false,
+    "createdBy": {
+      "_id": "6a3a6a0bae35675764d1d045",
+      "username": "Dharshini",
+      "email": "dharshu@gmail.com"
+    },
+    "createdAt": "2026-06-29T09:59:56.979Z",
+    "updatedAt": "2026-07-01T18:53:12.268Z",
+    "__v": 0,
+    "history": {
+      "2026-06-29": true,
+      "2026-06-30": true,
+      "2026-07-02": true
+    },
+    "lastCompletedAt": "2026-07-01T18:53:12.262Z"
+  },]
+
+step:3 delete user admin token
+delete http://localhost:4000/admin/deleteusers/6a422546b56f72e5baa8bce9
+{
+  "success": true,
+  "message": "User deleted"
+}
+
+step:4 change role of user                /userid/
+put http://localhost:4000/admin/updaterole/6a3d691fab21f789d04626fc/role
+req.body {
+ "role":"admin"
+}
+{
+  "profileImage": "",
+  "_id": "6a3d691fab21f789d04626fc",
+  "username": "Ramya",
+  "email": "ramya@gmail.com",
+  "password": "$2b$10$OI9uD09O7ZeJVtFU0iuOXeyw0r/mozgtzHn0vZXSrxwPZPMW5Mn0G",
+  "role": "admin",
+  "age": 22,
+  "height": 144,
+  "weight": 44,
+  "gender": "Female",
+  "reminderTime": "",
+  "dailyactivitylevel": "medium",
+  "goal": "weight_loss",
+  "otp": null,
+  "otpExpire": null,
+  "otpVerified": false,
+  "createdAt": "2026-06-25T17:45:03.662Z",
+  "updatedAt": "2026-07-04T18:14:18.946Z",
+  "__v": 0
+}
+
+step:5 getdashboard
+get http://localhost:4000/admin/dashboard
+
+{
+  "success": true,
+  "totalUsers": 4,
+  "totalHabits": 20,
+  "completedHabits": 17,
+  "suggestedHabits": 6
+}

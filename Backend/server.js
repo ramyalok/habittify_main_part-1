@@ -13,29 +13,26 @@ connectDB();
 
 app.use(express.json());
 
+// image upload folder
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // routes connection
 
-//  1.login/register/forgotpassword
-  //user routes
- const authuserroutes = require("./routes3/auth.routes3");
-  app.use("/users", authuserroutes);
-  //admin routes
-  const adminroutes = require("./routes3/admin.routes");
-  app.use("/admin", adminroutes);
+// user routes
+const authuserroutes = require("./routes3/auth.routes3");
+app.use("/users", authuserroutes);
 
-// 2.habit crud
- const habitroutes = require("./routes3/habit.routes");
- app.use("/habit", habitroutes);
+// admin routes
+const adminroutes = require("./routes3/admin.routes");
+app.use("/admin", adminroutes);
 
-// 3. profile view// get = http://localhost:5000/userProfile/getprofile
-// const userProfileroutes = require("./routes4/userProfile.route");
-// app.use("/userProfile", userProfileroutes);
+// habit routes
+const habitroutes = require("./routes3/habit.routes");
+app.use("/habit", habitroutes);
 
-//basic handler for server 500code
-  const errorHandler = require("./middleware4/error.middleware");
-  app.use(errorHandler);
-  
-  app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// error middleware
+const errorHandler = require("./middleware4/error.middleware");
+app.use(errorHandler);
 
 app.listen(process.env.PORT, () => {
   console.log(`server running on port ${process.env.PORT}`);

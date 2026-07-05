@@ -77,7 +77,7 @@ exports.forgotPassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
 
-    // cleanup
+    // cleanup after otp enterd verified
     user.otp = null;
     user.otpExpire = null;
     user.otpVerified = false;

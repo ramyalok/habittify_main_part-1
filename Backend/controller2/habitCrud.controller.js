@@ -1,188 +1,107 @@
 const HabitModel = require("../model1/Addhabit");
 const HabitifyUsers = require("../model1/users");
 
-exports.addHabit = async (req, res) => {
+//🤩 to view the profile
+exports.getProfile = async (req, res) => {
   try {
-    const { habitName, emoji, isSuggested } = req.body;
-    // check duplicate ONLY for current user or admin
-    const IssameHabit = await HabitModel.findOne({
-      habitName,
-      createdBy: req.user.id,
-    });
-    if (IssameHabit) {
-      return res.status(400).json({
-        success: false,
-        message: "Habit already Exists",
-      });
+    const user = await HabitifyUsers.findById(req.user.id).select("-password");//finds logged user
+    const habits = await HabitModel.find({ createdBy: req.user.id });//logged user habits
+    //calculate bmi
+    let bmi = null;
+    let bmiCategory = "Unknown";
+
+    if (user.height && user.weight) {
+      const heightInMeters = user.height / 100;
+
+      bmi = Number(
+        (user.weight / (heightInMeters * heightInMeters)).toFixed(1),
+      );
+
+      if (bmi < 18.5) bmiCategory = "Underweight";
+      else if (bmi < 25) bmiCategory = "Normal";
+      else if (bmi < 30) bmiCategory = "Overweight";
+      else bmiCategory = "Obese";
     }
-    const newHabit = await HabitModel.create({
-      habitName,
-      emoji,
-      isSuggested,
-      createdBy: req.user.id,
-    });
-    res.status(200).json({
-      success: true,
-      message: "Habits added successfully",
-      data: newHabit,
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: err.message });
-  }
-};
-// So Habit needs ownership.User A → only Exercise //User B → only Reading
-// Habit project should use 😎createdBy 😎if:Every user owns their own habits
-
-exports.getHabit = async (req, res) => {
-  try {
-    const habits = await HabitModel.find({ createdBy: req.user.id });
-    res
-      .status(200)
-      .json({ success: true, message: "All Habits ", data: habits });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.updateHabit = async (req, res) => {
-  try {
-    const updatedHabit = await HabitModel.findOneAndUpdate(
-      {
-        _id: req.params.id,
-        createdBy: req.user.id,
-      },
-      req.body,
-      { returnDocument: "after", runValidators: true },
-    );
-    //Update only//if logged user owns habit//User A can update only own habit
-    //Only _id → findByIdAndUpdate()/ /Multiple conditions → findOneAndUpdate()
-    if (!updatedHabit) {
-      return res.status(404).json({ message: "Habit Not Found" });
-    }
-
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Habit Updated successfully",
-        data: updatedHabit,
-      });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.deleteHabit = async (req, res) => {
-  try {
-    const deletedHabit = await HabitModel.findOneAndDelete({
-      _id: req.params.id,
-      createdBy: req.user.id,
-    });
-
-    if (!deletedHabit) {
-      return res.status(404).json({ message: "habit not found" });
-    }
-
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Habit deleted successfully",
-        data: deletedHabit,
-      });
-  } catch (error) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-exports.toggleHabit = async (req, res) => {
-  try {
-    const habit = await HabitModel.findOne({
-      _id: req.params.id,
-      createdBy: req.user.id,
-    });
-
-    if (!habit) {
-      return res.status(404).json({
-        success: false,
-        message: "Habit not found",
-      });
-    }
-
-    const today = new Date().toLocaleDateString("en-CA");
-
-    if (!habit.history) {
-      habit.history = {};
-    }
-
-    // Toggle today's completion
-    habit.history[today] = !habit.history[today];
-
-    habit.markModified("history");
-
-    habit.completed = habit.history[today];
-
-    if (habit.completed) {
-      habit.lastCompletedAt = new Date();
-    } else {
-      habit.lastCompletedAt = null;
-    }
- 
-    // Calculate streak
-    let streak = 0;
-    let current = new Date();
-
-    while (true) {
-      const dateStr = current.toLocaleDateString("en-CA");
-
-      if (habit.history[dateStr]) {
-        streak++;
-        current.setDate(current.getDate() - 1);
-      } else {
-        break;
-      }
-    }
-
-    habit.streak = streak;
-
-    await habit.save();
 
     res.status(200).json({
       success: true,
-      data: habit,
+      user,
+      habits,
+      bmi,
+      bmiCategory,
     });
   } catch (error) {
-    console.log(error);
-
     res.status(500).json({
       message: error.message,
     });
   }
 };
-
-exports.generateHabits = async (req, res) => {
+//🤩 to update(add) user details
+exports.updateProfile = async (req, res) => {
   try {
-    const user = await HabitifyUsers.findById(req.user.id);
-    console.log("USER FROM DB");
-    console.log(user);
+    const {
+      age,
+      gender,
+      height,
+      weight,
+      dailyactivitylevel,
+      goal,
+      reminderTime,
+    } = req.body;
+
+    const user = await HabitifyUsers.findByIdAndUpdate(
+      req.user.id,
+      {
+        age,
+        gender,
+        height,
+        weight,
+        dailyactivitylevel,
+        goal,
+        reminderTime,
+      },
+      // { new: true },//it is deprecated and replaced with returnDocument: "after" in mongoose 7
+      {
+        returnDocument: "after",
+      },
+    );
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "User updated successfully",
+        data: user,
+      });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+//🤩 to generate habits based on goal and bmi category after profile update 
+exports.generateHabits = async (req, res) => {
+  //after user profile complete genrate habits based on goal and bmi category
+  try {
+    const user = await HabitifyUsers.findById(req.user.id); ////finds logged user
+    console.log("USER FROM DB", user); //username,email,password,rolr,proimg,age,he,we,,gender,goal,dailyactlevel
+
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
-    } //for generate habits we need to complte userprofile with goal and bmi category. if not complete then we will not generate habits.
-   
-   console.log("CHECK PROFILE");
+    }
+    // console.log("CHECK PROFILE");
 
-   console.log({
-     age: user.age,
-     height: user.height,
-     weight: user.weight,
-     goal: user.goal,
-     dailyactivitylevel: user.dailyactivitylevel,
-   });
-      
+    // console.log({
+    //   age: user.age,
+    //   height: user.height,
+    //   weight: user.weight,
+    //   goal: user.goal,
+    //   dailyactivitylevel: user.dailyactivitylevel,
+    // });
+
     if (
       !user.age ||
       !user.height ||
@@ -199,27 +118,7 @@ exports.generateHabits = async (req, res) => {
         message: "Complete your profile first",
       });
     }
-        // -----------------------------// Calculate BMI// -----------------------------
-    let bmi = null;
-    if (user.height && user.weight) {
-      const heightInMeters = user.height / 100;
-      bmi = Number(
-        (user.weight / (heightInMeters * heightInMeters)).toFixed(1),
-      );
-    }
-    let bmiCategory = "Unknown";
-
-    if (bmi !== null) {
-      if (bmi < 18.5) {
-        bmiCategory = "Underweight";
-      } else if (bmi < 25) {
-        bmiCategory = "Normal";
-      } else if (bmi < 30) {
-        bmiCategory = "Overweight";
-      } else {
-        bmiCategory = "Obese";
-      }
-    }
+    //goal based habits suggested
     let suggestions = []; // // GOAL : WEIGHT LOSS//
     if (user.goal === "weight_loss") {
       suggestions = [
@@ -350,7 +249,29 @@ exports.generateHabits = async (req, res) => {
         },
       ];
     }
+
     //bmi category based habit
+    // -----------------------------// Calculate BMI// -----------------------------
+    let bmi = null;
+    if (user.height && user.weight) {
+      const heightInMeters = user.height / 100;
+      bmi = Number(
+        (user.weight / (heightInMeters * heightInMeters)).toFixed(1),
+      );
+    }
+    let bmiCategory = "Unknown";
+
+    if (bmi !== null) {
+      if (bmi < 18.5) {
+        bmiCategory = "Underweight";
+      } else if (bmi < 25) {
+        bmiCategory = "Normal";
+      } else if (bmi < 30) {
+        bmiCategory = "Overweight";
+      } else {
+        bmiCategory = "Obese";
+      }
+    }
     if (bmiCategory === "Underweight") {
       suggestions.push({
         habitName: "Have Healthy Snacks",
@@ -412,6 +333,7 @@ exports.generateHabits = async (req, res) => {
         reason: "Improve Fitness And MentalHealth",
       });
     }
+    console.log(suggestions); //[{ habitName: 'Morning Workout', emoji: '🏃', reason: 'Stay active' },{},{}]
     res.status(200).json({
       success: true,
       bmi,
@@ -427,134 +349,171 @@ exports.generateHabits = async (req, res) => {
     });
   }
 };
-// Bug 1
-// Habit becomes unchecked after changing page
-// What should happen
-// Day 1
 
-// User clicks Mark
-//         │
-//         ▼
-// Frontend calls toggleHabit(id)
-//         │
-//         ▼
-// Backend updates MongoDB
-
-// history = {
-//    "2026-06-29": true
-// }
-
-// streak = 1
-//         │
-//         ▼
-// Backend returns updated habit
-//         │
-//         ▼
-// Redux stores updated habit
-//         │
-//         ▼
-// User changes page
-//         │
-//         ▼
-// loadHabits()
-//         │
-//         ▼
-// MongoDB returns history
-
-// history={
-//  "2026-06-29":true
-// }
-
-// Card checks
-
-// isDone = todo.history[today]
-
-// ✔ Still marked
-
-// This is the expected flow.
-
-//
-
-exports.getProfile = async (req, res) => {
+//custom habits are created by user and stored in db and can be viewed,updated,deleted by user only
+exports.addHabit = async (req, res) => {
   try {
-    const user = await HabitifyUsers.findById(req.user.id).select("-password");
-    const habits = await HabitModel.find({ createdBy: req.user.id });
-    //calculate bmi
-    let bmi = null;
-    let bmiCategory = "Unknown";
+    const { habitName, emoji, isSuggested } = req.body;
+    // check duplicate ONLY for current user or admin
+    const IssameHabit = await HabitModel.findOne({
+      habitName,
+      createdBy: req.user.id,
+    });
+    if (IssameHabit) {
+      return res.status(400).json({
+        success: false,
+        message: "Habit already Exists",
+      });
+    }
+    const newHabit = await HabitModel.create({
+      habitName,
+      emoji,
+      isSuggested,
+      createdBy: req.user.id,
+    });
+    res.status(200).json({
+      success: true,
+      message: "Habits added successfully",
+      data: newHabit,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+// So Habit needs ownership.User A → only Exercise //User B → only Reading
+// Habit project should use 😎createdBy 😎if:Every user owns their own habits
 
-    if (user.height && user.weight) {
-      const heightInMeters = user.height / 100;
+//get all habits of logged user and admin
+exports.getHabit = async (req, res) => {
+  try {
+    const habits = await HabitModel.find({ createdBy: req.user.id });//allhabits owned by kumar user
+    res
+      .status(200)
+      .json({ success: true, message: "All Habits ", data: habits });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-      bmi = Number(
-        (user.weight / (heightInMeters * heightInMeters)).toFixed(1),
-      );
-
-      if (bmi < 18.5) bmiCategory = "Underweight";
-      else if (bmi < 25) bmiCategory = "Normal";
-      else if (bmi < 30) bmiCategory = "Overweight";
-      else bmiCategory = "Obese";
+//update habit of logged user and admin
+exports.updateHabit = async (req, res) => {
+  try {
+    const updatedHabit = await HabitModel.findOneAndUpdate(
+      {
+        _id: req.params.id,//habit id
+        createdBy: req.user.id,//user id
+      },
+      req.body,
+      { returnDocument: "after", runValidators: true },
+      //returnDocument: "after" → returns the updated document after update, 
+      // runValidators: true → runs the validators defined in the schema to validate the updated data
+    );
+    //Update only//if logged user owns habit//User A can update only own habit
+    //Only _id → findByIdAndUpdate()/ /Multiple conditions → findOneAndUpdate()
+    if (!updatedHabit) {
+      return res.status(404).json({ message: "Habit Not Found" });
     }
 
     res.status(200).json({
       success: true,
-      user,
-      habits,
-      bmi,
-      bmiCategory,
+      message: "Habit Updated successfully",
+      data: updatedHabit,
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
-exports.updateProfile = async (req, res) => {
-  try {
-    const {
-      age,
-      gender,
-      height,
-      weight,
-      dailyactivitylevel,
-      goal,
-      reminderTime,
-    } = req.body;
 
-    const user = await HabitifyUsers.findByIdAndUpdate(
-      req.user.id,
-      {
-        age,
-        gender,
-        height,
-        weight,
-        dailyactivitylevel,
-        goal,
-        reminderTime,
-      },
-      { new: true },
-    );
-
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "User updated successfully",
-        data: user,
-      });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
-exports.deleteProfile = async (req, res) => {
+//delete habit of logged user and admin
+exports.deleteHabit = async (req, res) => {
   try {
-    await HabitModel.deleteMany({
+    const deletedHabit = await HabitModel.findOneAndDelete({
+      _id: req.params.id,
       createdBy: req.user.id,
     });
 
-    await HabitifyUsers.findByIdAndDelete(req.user.id);
+    if (!deletedHabit) {
+      return res.status(404).json({ message: "habit not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Habit deleted successfully",
+      data: deletedHabit,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+//toggle habit of logged user and admin
+exports.toggleHabit = async (req, res) => {
+  try {
+    const habit = await HabitModel.findOne({
+      _id: req.params.id, //habit id
+      createdBy: req.user.id, //user id
+    });
+
+    if (!habit) {
+      return res.status(404).json({
+        success: false,
+        message: "Habit not found",
+      });
+    }
+    const today = new Date().toLocaleDateString("en-CA"); //today date in format YYYY-MM-DD
+    if (!habit.history) {
+      habit.history = {};
+    }
+    // Toggle today's completion
+    habit.history[today] = !habit.history[today]; //habit.history becoms true {"2026-07-05":true,"2026-07-06":true}
+    habit.markModified("history"); //Mongoose sometimes doesn't detect changes inside plain objects so we tell mongoose history changed and needs to be saved
+    habit.completed = habit.history[today]; //If today's history is true then habit.completed is true else false
+    //completed is only today's status.history stores every day's status.history tells you every day the habit was completed.
+    if (habit.completed) {
+      habit.lastCompletedAt = new Date();
+    } else {
+      habit.lastCompletedAt = null;
+    }
+
+    // Calculate streak
+    let streak = 0;
+    let current = new Date();
+    while (true) {
+      const dateStr = current.toLocaleDateString("en-CA");
+      if (habit.history[dateStr]) {
+        streak++; //How many consecutive days have you completed the habit until today?
+        current.setDate(current.getDate() - 1); //code starts from today and walks backward one day at a time. today date is july 4  july 3,2,1 =true sreak is 3 (3 consective days)// but today false strk 0
+      } else {
+        break;
+      }
+    }
+    habit.streak = streak;
+    await habit.save();
+    res.status(200).json({
+      success: true,
+      data: habit,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+// Another Example
+//{2026-07-04 : true2026-07-03 : true2026-07-02 : true2026-07-01 : false} 1 2 3 4is not complte = final streak 3
+// History{"2026-07-04": true, "2026-07-03": false, "2026-07-02": true}
+// Loop Day 4 ✓streak=1 Day 3 ✗ STOP =Final streak = 1Even though July 2 was completed, the streak is only 1 because a streak must be continuous.
+
+
+exports.deleteProfile = async (req, res) => {
+  try {
+    await HabitModel.deleteMany({
+      createdBy: req.user.id, //Every habit created by that user is removed.
+    });
+
+    await HabitifyUsers.findByIdAndDelete(req.user.id);//ex mena account is removed from db and all habits created by user are also removed from db
 
     res.status(200).json({
       success: true,
@@ -566,14 +525,39 @@ exports.deleteProfile = async (req, res) => {
     });
   }
 };
+
 exports.uploadProfileImage = async (req, res) => {
-  const user = await HabitifyUsers.findById(req.user.id);
+  try {
+    console.log("===== UPLOAD START =====");
+    console.log("req.file =", req.file);
+    console.log("req.body =", req.body);
+    console.log("req.user =", req.user);
 
-  user.profileImage = "/uploads/profile/" + req.file.filename;//insted of req in body we are using req.file.filename because we are using multer to upload image and multer will give us the filename of the uploaded image in req.file.filename
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No image received",
+      });
+    }
 
-  await user.save();
+    const user = await HabitifyUsers.findById(req.user.id);
 
-  res.json(user);
+    user.profileImage = "/uploads/profile/" + req.file.filename;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      profileImage: user.profileImage,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 // Admin → sees own habits only
 // User → sees own habits only

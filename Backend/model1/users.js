@@ -20,6 +20,7 @@ const UserSchema = new mongoose.Schema(
 
     role: {
       type: String,
+      enum: ["user", "admin"],
       default: "user",
     }, // Profile Information
     profileImage: {
@@ -42,7 +43,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-      reminderTime: {
+    reminderTime: {
       type: String,
       default: "",
     },
@@ -50,7 +51,7 @@ const UserSchema = new mongoose.Schema(
     dailyactivitylevel: {
       type: String,
       enum: ["low", "medium", "high"],
-      default: "",
+      default:undefined,//
     },
 
     goal: {
@@ -63,7 +64,7 @@ const UserSchema = new mongoose.Schema(
         "productivity",
         "mental_health",
       ],
-      default: "",
+      default: undefined,
     },
 
     otp: {

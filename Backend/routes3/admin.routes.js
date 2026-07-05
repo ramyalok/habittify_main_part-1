@@ -18,7 +18,7 @@ module.exports = router;
 //    ▼
 // JWT Token
 //    │
-//    ▼
+ //   ▼
 // verifyToken
 //    │
 //    ▼
