@@ -478,3 +478,134 @@ get http://localhost:4000/admin/dashboard
   "completedHabits": 17,
   "suggestedHabits": 6
 }
+=================================================
+review
+step 1: http://localhost:4000/users/login
+step 2:copy token in bearer token //admin or user token
+step 3:http://localhost:4000/review/create
+{
+  "rating": 5,
+  "message": "Habitify is really helping me build healthy habits."
+}
+{
+  "success": true,
+  "message": "Review submitted successfully.",
+  "data": {
+    "user": "6a3a6a0bae35675764d1d045",
+    "rating": 5,
+    "message": "Habitify is really helping me build healthy habits.",
+    "isApproved": false,
+    "_id": "6a4b7ddc41619804026128e4",
+    "createdAt": "2026-07-06T10:05:16.608Z",
+    "updatedAt": "2026-07-06T10:05:16.608Z",
+    "__v": 0
+  }
+}
+step 4:give s same reuest again it throe err{
+  "success": false,
+  "message": "You have already submitted a review."
+}
+step 5: http://localhost:4000/review/myreview  token is user
+{
+  "success": true,
+  "data": {
+    "_id": "6a4b7ddc41619804026128e4",
+    "user": {
+      "_id": "6a3a6a0bae35675764d1d045",
+      "username": "Dharshini",
+      "email": "dharshu@gmail.com",
+      "profileImage": "/uploads/profile/1783192211473.JPG"
+    },
+    "rating": 5,
+    "message": "Habitify is really helping me build healthy habits.",
+    "isApproved": false,
+    "createdAt": "2026-07-06T10:05:16.608Z",
+    "updatedAt": "2026-07-06T10:05:16.608Z",
+    "__v": 0
+  }
+}
+step 6: http://localhost:4000/review/update put token is user
+{
+  "rating":4,
+  "message": "Habitify is really helping me."
+}
+ {
+  "success": true,
+  "message": "Review updated successfully.",
+  "data": {
+    "_id": "6a4b7ddc41619804026128e4",
+    "user": "6a3a6a0bae35675764d1d045",
+    "rating": 4,
+    "message": "Habitify is really helping me.",
+    "isApproved": false,
+    "createdAt": "2026-07-06T10:05:16.608Z",
+    "updatedAt": "2026-07-06T14:12:07.029Z",
+    "__v": 0
+  }
+}
+step 7:delete review http://localhost:4000/review/delete
+{
+  "success": true,
+  "message": "Review deleted successfully."
+}
+
+//admin token
+step 1:http://localhost:4000/review/allreviews  get all reviews (token admin)
+
+{
+  "success": true,
+  "count": 2,
+  "data": [
+    {
+      "_id": "6a4bb8d60d5040861a0264d0",   //review id
+      "user": {
+        "_id": "6a4b46b34ccb3d05f27d863d",
+        "username": "Meena k",
+        "email": "meena@gmail.com",
+        "profileImage": ""
+      },
+      "rating": 5,
+      "message": "Habitify is really helping me.a lot for my life change",
+      "isApproved": false,
+      "createdAt": "2026-07-06T14:16:54.318Z",
+      "updatedAt": "2026-07-06T14:16:54.318Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a4bb8300d5040861a0264cf",
+      "user": {
+        "_id": "6a3a6a0bae35675764d1d045",
+        "username": "Dharshini",
+        "email": "dharshu@gmail.com",
+        "profileImage": "/uploads/profile/1783192211473.JPG"
+      },
+      "rating": 4,
+      "message": "Habitify is really helping me.",
+      "isApproved": false,
+      "createdAt": "2026-07-06T14:14:08.352Z",
+      "updatedAt": "2026-07-06T14:14:08.352Z",
+      "__v": 0
+    }
+  ]
+}
+
+step 2:http://localhost:4000/review/approve/6a4bb8d60d5040861a0264d0 put 
+{
+  "success": true,
+  "message": "Review approved successfully.",
+  "data": {
+    "_id": "6a4bb8d60d5040861a0264d0",
+    "user": "6a4b46b34ccb3d05f27d863d",
+    "rating": 5,
+    "message": "Habitify is really helping me.a lot for my life change",
+    "isApproved": true,
+    "createdAt": "2026-07-06T14:16:54.318Z",
+    "updatedAt": "2026-07-06T14:24:00.378Z",
+    "__v": 0
+  }
+}
+step:3 http://localhost:4000/review/deleteReview/6a4bb8300d5040861a0264cf     delete any review by admin 
+{
+  "success": true,
+  "message": "Review deleted successfully."
+}

@@ -30,6 +30,10 @@ app.use("/admin", adminroutes);
 const habitroutes = require("./routes3/habit.routes");
 app.use("/habit", habitroutes);
 
+// review routes
+const reviewroutes = require("./routes3/review.routes");
+app.use("/review", reviewroutes);
+
 // error middleware
 const errorHandler = require("./middleware4/error.middleware");
 app.use(errorHandler);

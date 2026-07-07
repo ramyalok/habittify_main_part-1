@@ -60,7 +60,7 @@ module.exports = mongoose.model("Habits",HabitSchema);
 // Ramya Drink Water   ✅
 // Ramya Drink Water   ❌
 // Kumar Drink Water   ✅
-// Interview Answer (30 seconds)
+ 
 
 // A compound index is an index created on two or more fields. MongoDB checks the combination of those fields instead of a single field. In my Habitify project, I used a compound unique index on createdBy and habitName. This allows different users to create the same habit, but prevents the same user from creating duplicate habits. It also improves query performance when searching using both fields.
 

@@ -1,5 +1,6 @@
 const HabitModel = require("../model1/Addhabit");
 const HabitifyUsers = require("../model1/users");
+const Review  =require("../model1/Review")
 
 //1 Get all users
 exports.getAllUsers = async (req, res) => {
@@ -63,20 +64,18 @@ exports.changeRole = async (req, res) => {
   }
 };
 
-//getdashboard
+//getdashboard -get
 exports.getDashboard = async (req, res) => {
   try {
     const totalUsers = await HabitifyUsers.countDocuments();
-
     const totalHabits = await HabitModel.countDocuments();
-
     const completedHabits = await HabitModel.countDocuments({
       completed: true,
     });
-
     const suggestedHabits = await HabitModel.countDocuments({
       isSuggested: true,
     });
+    const totalReviews = await Review.countDocuments();
 
     res.status(200).json({
       success: true,
@@ -84,6 +83,7 @@ exports.getDashboard = async (req, res) => {
       totalHabits,
       completedHabits,
       suggestedHabits,
+      totalReviews,
     });
   } catch (error) {
     res.status(500).json({
@@ -92,3 +92,4 @@ exports.getDashboard = async (req, res) => {
     });
   }
 };
+
