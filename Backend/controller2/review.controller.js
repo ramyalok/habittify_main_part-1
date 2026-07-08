@@ -80,7 +80,7 @@ exports.deleteReview = async (req, res) => {
     const reviews = await Review.find()
       .populate("user", "username email profileImage")
       .sort({
-        createdAt: -1,
+        createdAt: -1, //Descending order form new review to old review
       });
 
     res.status(200).json({ success: true, count: reviews.length, data: reviews});
