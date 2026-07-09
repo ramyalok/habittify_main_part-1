@@ -8,7 +8,6 @@ const role = require("../middleware4/role.middleware");
 const upload = require("../middleware4/upload.middleware");
 
 router.post("/create", auth, habitcontroller.addHabit);
-
 router.get("/get", auth, habitcontroller.getHabit);
 router.put("/update/:id", auth, habitcontroller.updateHabit);
 router.delete("/delete/:id", auth, habitcontroller.deleteHabit);
