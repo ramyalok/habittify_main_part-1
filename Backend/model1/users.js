@@ -11,6 +11,8 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
 
     password: {
@@ -51,7 +53,7 @@ const UserSchema = new mongoose.Schema(
     dailyactivitylevel: {
       type: String,
       enum: ["low", "medium", "high"],
-      default:undefined,//
+      default: undefined, //
     },
 
     goal: {

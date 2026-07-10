@@ -6,7 +6,8 @@ const generateToken = require("../utils1/generateToken");
 exports.register = async (req, res) => {
   try {
     console.log(req.body);
-    const { username, email, password, role = "user" } = req.body;
+    const { username, password, role = "user" } = req.body;
+    const email = req.body.email?.trim().toLowerCase();//it prevent runtime errors
     const UserExist = await HabitifyUsers.findOne({ email });
     if (UserExist) {
       return res.status(400).json({ message: "User already exists" });
@@ -36,7 +37,8 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+    const { password } = req.body;
     const registerdUser = await HabitifyUsers.findOne({ email });
     if (!registerdUser) {
       return res.status(404).json({ message: "user not found" });
@@ -66,7 +68,8 @@ exports.login = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const {  password } = req.body;
+   const email = req.body.email?.trim().toLowerCase();
     const user = await HabitifyUsers.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "user Not found" });
@@ -91,7 +94,8 @@ exports.forgotPassword = async (req, res) => {
 
 exports.sendOtp = async(req,res)=>{
 try{
-  const{email}=req.body;
+  // const{email}=req.body;
+ const email = req.body.email?.trim().toLowerCase();
   const user = await HabitifyUsers.findOne({email});
   if(!user)
     {
@@ -129,7 +133,8 @@ res.status(500).json({message:error.message})
 
 exports.verifyOtp = async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const {  otp } = req.body;
+   const email = req.body.email?.trim().toLowerCase();
     const user = await HabitifyUsers.findOne({ email });
 
     if (!user) {
