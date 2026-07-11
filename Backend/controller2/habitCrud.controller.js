@@ -476,7 +476,7 @@ exports.toggleHabit = async (req, res) => {
       habit.lastCompletedAt = null;
     }
 
-    // Calculate streak
+    // Calculate streak    
     let streak = 0;
     let current = new Date();
     while (true) {
