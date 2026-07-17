@@ -34,6 +34,10 @@ app.use("/habit", habitroutes);
 const reviewroutes = require("./routes3/review.routes");
 app.use("/review", reviewroutes);
 
+//contact routes 
+const contactroutes = require("./routes3/contact.routes");
+app.use("/contact",contactroutes);
+
 // error middleware
 const errorHandler = require("./middleware4/error.middleware");
 app.use(errorHandler);

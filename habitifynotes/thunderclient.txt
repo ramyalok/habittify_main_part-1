@@ -609,3 +609,52 @@ step:3 http://localhost:4000/review/deleteReview/6a4bb8300d5040861a0264cf     de
   "success": true,
   "message": "Review deleted successfully."
 }
+
+//contact page 
+http://localhost:4000/contact/create
+{
+  "success": true,
+  "message": "Suggestion submitted successfully",
+  "data": {
+    "user": "6a5a35a1252c3384c2a06f62",
+    "name": "Kumar",
+    "email": "k@gmail.com",
+    "message": "Habitify helped me wake up early and maintain a healthy morning routine. It would be great if dark mode is added.",
+    "_id": "6a5a3b48d5d57cad49222c53",
+    "createdAt": "2026-07-17T14:25:12.850Z",
+    "updatedAt": "2026-07-17T14:25:12.850Z",
+    "__v": 0
+  }
+}
+
+http://localhost:4000/contact/all --get 
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "6a5a3b48d5d57cad49222c53",
+      "user": "6a5a35a1252c3384c2a06f62",
+      "name": "Kumar",
+      "email": "k@gmail.com",
+      "message": "Habitify helped me wake up early and maintain a healthy morning routine. It would be great if dark mode is added.",
+      "createdAt": "2026-07-17T14:25:12.850Z",
+      "updatedAt": "2026-07-17T14:25:12.850Z",
+      "__v": 0
+    }
+  ]
+}
+http://localhost:4000/contact/delete/6a5a3b48d5d57cad49222c53  delete
+{
+  "success": true,
+  "data": {
+    "_id": "6a5a3b48d5d57cad49222c53",
+    "user": "6a5a35a1252c3384c2a06f62",
+    "name": "Kumar",
+    "email": "k@gmail.com",
+    "message": "Habitify helped me wake up early and maintain a healthy morning routine. It would be great if dark mode is added.",
+    "createdAt": "2026-07-17T14:25:12.850Z",
+    "updatedAt": "2026-07-17T14:25:12.850Z",
+    "__v": 0
+  },
+  "message": "Suggestion deleted"
+}

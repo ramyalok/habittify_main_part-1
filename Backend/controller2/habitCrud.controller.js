@@ -123,7 +123,7 @@ exports.generateHabits = async (req, res) => {
     if (user.goal === "weight_loss") {
       suggestions = [
         {
-          habitName: "Drink Water",
+          habitName: "Drink Water and avoid junk food",
           emoji: "💧",
           reason: "Stay hydrated",
         },
@@ -148,7 +148,7 @@ exports.generateHabits = async (req, res) => {
           reason: "Gain muscle",
         },
         {
-          habitName: "Drink Milk",
+          habitName: "Drink Milk with nutpowder",
           emoji: "🥛",
           reason: "Healthy calories",
         },
@@ -157,7 +157,7 @@ exports.generateHabits = async (req, res) => {
     else if (user.goal === "fitness") {
       suggestions = [
         {
-          habitName: "Morning Workout",
+          habitName: "Morning Workout 30 to 40 mins",
           emoji: "🏃",
           reason: "Stay active",
         },
@@ -167,7 +167,7 @@ exports.generateHabits = async (req, res) => {
           reason: "Improve flexibility",
         },
         {
-          habitName: "Drink Water",
+          habitName: "Be hydrating yourself  ",
           emoji: "💧",
           reason: "Support recovery",
         },
