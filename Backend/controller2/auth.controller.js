@@ -37,6 +37,7 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
+    console.log("Login controller reached");
     const email = req.body.email?.trim().toLowerCase();
     const { password } = req.body;
     const registerdUser = await HabitifyUsers.findOne({ email });

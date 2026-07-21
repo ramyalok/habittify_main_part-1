@@ -42,6 +42,8 @@ app.use("/contact",contactroutes);
 const errorHandler = require("./middleware4/error.middleware");
 app.use(errorHandler);
 
+ 
+
 app.listen(process.env.PORT, () => {
   console.log(`server running on port ${process.env.PORT}`);
 });
